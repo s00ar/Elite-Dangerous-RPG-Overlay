@@ -1,0 +1,11 @@
+{
+  "NPC": "John the Explorer",
+  "Latitude": 18.796764,
+  "Longitude": 164.046234,
+  "BodyName": "LHS 2459 A 1",
+  "Dialogues": [
+    "¡Hola, explorador! ¿Listo para una nueva aventura?",
+    "Busca a los cristales en las coordenadas 20,30.",
+    "Gracias por ayudarme. ¡Buena suerte!"
+  ]
+}

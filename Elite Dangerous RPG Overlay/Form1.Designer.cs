@@ -28,61 +28,61 @@
         /// </summary>
         private void InitializeComponent()
         {
-            label1 = new Label();
-            button1 = new Button();
-            button2 = new Button();
+            texto_inicial = new Label();
+            continuarButton = new Button();
+            cancelarButton = new Button();
             SuspendLayout();
             // 
-            // label1
+            // texto_inicial
             // 
-            label1.AccessibleDescription = "initialText";
-            label1.AutoSize = true;
-            label1.BackColor = SystemColors.Desktop;
-            label1.Font = new Font("Poppins SemiBold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.ForeColor = SystemColors.ButtonFace;
-            label1.Location = new Point(112, 219);
-            label1.Name = "label1";
-            label1.Size = new Size(469, 28);
-            label1.TabIndex = 0;
-            label1.Text = "Haz llegado a un planeta con interacciones disponibles.";
-            label1.Click += label1_Click;
+            texto_inicial.AccessibleDescription = "initialText";
+            texto_inicial.AutoSize = true;
+            texto_inicial.BackColor = SystemColors.Desktop;
+            texto_inicial.CausesValidation = false;
+            texto_inicial.Font = new Font("Poppins SemiBold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            texto_inicial.ForeColor = SystemColors.ButtonFace;
+            texto_inicial.Location = new Point(78, 58);
+            texto_inicial.Name = "texto_inicial";
+            texto_inicial.Size = new Size(469, 28);
+            texto_inicial.TabIndex = 0;
+            texto_inicial.Text = "Haz llegado a un planeta con interacciones disponibles.";
+            texto_inicial.Click += texto_inicial_Click;
             // 
-            // button1
+            // continuarButton
             // 
-            button1.BackColor = Color.Transparent;
-            button1.ForeColor = Color.Black;
-            button1.Location = new Point(413, 263);
-            button1.Name = "button1";
-            button1.Size = new Size(75, 23);
-            button1.TabIndex = 1;
-            button1.Text = "Continuar";
-            button1.UseVisualStyleBackColor = false;
-            button1.Click += button1_Click;
+            continuarButton.BackColor = Color.Silver;
+            continuarButton.ForeColor = Color.Black;
+            continuarButton.Location = new Point(78, 99);
+            continuarButton.Name = "continuarButton";
+            continuarButton.Size = new Size(75, 23);
+            continuarButton.TabIndex = 1;
+            continuarButton.Text = "Continuar";
+            continuarButton.UseVisualStyleBackColor = false;
+            continuarButton.Click += continuarButton_Click;
             // 
-            // button2
+            // cancelarButton
             // 
-            button2.BackColor = Color.Transparent;
-            button2.ForeColor = Color.Black;
-            button2.Location = new Point(506, 263);
-            button2.Name = "button2";
-            button2.Size = new Size(75, 23);
-            button2.TabIndex = 2;
-            button2.Text = "Cancelar";
-            button2.UseVisualStyleBackColor = false;
-            button2.Click += button2_Click;
+            cancelarButton.BackColor = Color.Silver;
+            cancelarButton.ForeColor = Color.Black;
+            cancelarButton.Location = new Point(472, 99);
+            cancelarButton.Name = "cancelarButton";
+            cancelarButton.Size = new Size(75, 23);
+            cancelarButton.TabIndex = 2;
+            cancelarButton.Text = "Cancelar";
+            cancelarButton.UseVisualStyleBackColor = false;
+            cancelarButton.Click += cancelarButton_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.Desktop;
-            ClientSize = new Size(800, 450);
-            Controls.Add(button2);
-            Controls.Add(button1);
-            Controls.Add(label1);
+            ClientSize = new Size(650, 234);
+            Controls.Add(cancelarButton);
+            Controls.Add(continuarButton);
+            Controls.Add(texto_inicial);
             FormBorderStyle = FormBorderStyle.None;
             Name = "Form1";
-            Opacity = 0.5D;
             Text = "Form1";
             TopMost = true;
             ResumeLayout(false);
@@ -91,8 +91,8 @@
 
         #endregion
 
-        private Label label1;
-        private Button button1;
-        private Button button2;
+        private System.Windows.Forms.Label texto_inicial;
+        private System.Windows.Forms.Button continuarButton;
+        private System.Windows.Forms.Button cancelarButton;
     }
 }
