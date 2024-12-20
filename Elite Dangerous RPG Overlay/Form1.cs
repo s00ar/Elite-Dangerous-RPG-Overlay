@@ -1,160 +1,178 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Text.Json;
 using System.Windows.Forms;
+using Elite_Dangerous_RPG_Overlay.Models;
 
 namespace Elite_Dangerous_RPG_Overlay
 {
     public partial class Form1 : Form
     {
-        private int currentDialogueIndex = 0;
-        private InteractionData loadedScript; // Objeto para almacenar el script JSON cargado.
+        private List<PlanetInteraction>? planetInteractions;
+        private Label? interactionMessage;
+        private Interaction? currentInteraction;
+        private int dialogueIndex = 0;
 
         public Form1()
         {
             InitializeComponent();
-
-            // Configurar propiedades del formulario
-            this.FormBorderStyle = FormBorderStyle.None;
-            this.BackColor = Color.Lime;
-            this.TransparencyKey = Color.Lime;
-            this.TopMost = true;
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Size = new Size(800, 600);
-
-            LoadScript(); // Cargar script inicial
-        }
-        // Método para el evento Click de texto_inicial
-        private void texto_inicial_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Texto inicial clickeado.");
+            LoadInteractions();
+            CreateCheckLocationButton(); // Crear botón para verificar ubicación
         }
 
-        // Método para el evento Click del botón Continuar
-        private void continuarButton_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Se presionó el botón Continuar.");
-        }
-
-        // Método para el evento Click del botón Cancelar
-        private void cancelarButton_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Se presionó el botón Cancelar.");
-        }
-
-        /// <summary>
-        /// Clase para deserializar los datos del archivo JSON.
-        /// </summary>
-        private class InteractionData
-        {
-            public string NPC { get; set; }
-            public double Latitude { get; set; }
-            public double Longitude { get; set; }
-            public string BodyName { get; set; }
-            public string[] Dialogues { get; set; }
-        }
-
-        /// <summary>
-        /// Carga el archivo JSON con los datos de interacción.
-        /// </summary>
-        private void LoadScript()
+        private void LoadInteractions()
         {
             try
             {
-                //string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "interaction_data.json");
-                string scriptPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "Data", "interaction_data.json");
-
-                if (File.Exists(scriptPath))
+                string filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "interaction_data.json");
+                if (!File.Exists(filePath))
                 {
-                    string scriptContent = File.ReadAllText(scriptPath);
-                    loadedScript = JsonSerializer.Deserialize<InteractionData>(scriptContent);
+                    MessageBox.Show($"El archivo {filePath} no se encontró.");
+                    return;
+                }
 
-                    if (loadedScript != null && loadedScript.Dialogues.Length > 0)
+                string json = File.ReadAllText(filePath);
+                planetInteractions = JsonSerializer.Deserialize<List<PlanetInteraction>>(json);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error al cargar interacciones: {ex.Message}");
+            }
+        }
+
+        private void CreateCheckLocationButton()
+        {
+            Button checkLocationButton = new Button
+            {
+                Text = "Verificar ubicación",
+                Location = new Point(20, 20),
+                AutoSize = true
+            };
+            checkLocationButton.Click += CheckPlayerLocation;
+            Controls.Add(checkLocationButton);
+        }
+
+        private void CheckPlayerLocation(object? sender, EventArgs e)
+        {
+            try
+            {
+                string statusFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    "Saved Games", "Frontier Developments", "Elite Dangerous", "Status.json");
+
+                if (!File.Exists(statusFilePath))
+                {
+                    MessageBox.Show("Archivo de estado no encontrado.");
+                    return;
+                }
+
+                string statusJson = File.ReadAllText(statusFilePath);
+                var statusData = JsonSerializer.Deserialize<StatusData>(statusJson);
+
+                if (statusData == null)
+                {
+                    MessageBox.Show("Error al leer datos del estado.");
+                    return;
+                }
+
+                var planet = planetInteractions?.FirstOrDefault(p => p.BodyName == statusData.BodyName);
+
+                if (planet != null)
+                {
+                    var availableInteractions = planet.Interactions.Where(i =>
+                        Math.Abs(i.Latitude - statusData.Latitude) <= 0.1 &&
+                        Math.Abs(i.Longitude - statusData.Longitude) <= 0.1).ToList();
+
+                    if (availableInteractions.Any())
                     {
-                        ShowInteraction(loadedScript.Dialogues[currentDialogueIndex]);
+                        DisplayInteractions(availableInteractions);
                     }
                     else
                     {
-                        MessageBox.Show("No se encontraron diálogos en el archivo JSON.");
+                        MessageBox.Show("No hay interacciones disponibles en esta ubicación.");
                     }
-                }
-                else
-                {
-                    MessageBox.Show($"El archivo {scriptPath} no se encontró. Verifica que exista y tenga permisos de lectura.");
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ocurrió un error al cargar el archivo JSON: {ex.Message}\n{ex.StackTrace}");
+                MessageBox.Show($"Error al verificar la ubicación del jugador: {ex.Message}");
             }
         }
 
-
-        /// <summary>
-        /// Muestra la interfaz de interacción con el mensaje actual.
-        /// </summary>
-        /// <param name="message">Mensaje a mostrar.</param>
-        private void ShowInteraction(string message)
+        private void DisplayInteractions(List<Interaction> interactions)
         {
-            // Limpiar controles existentes para evitar duplicados
-            this.Controls.Clear();
-
-            // Crear etiquetas y botones
-            Label dialogueLabel = new Label
+            if (interactionMessage == null)
             {
-                Text = message,
-                AutoSize = true,
-                Font = new Font("Arial", 14),
-                ForeColor = Color.White,
-                BackColor = Color.Black,
-                Location = new Point(100, 100)
-            };
+                interactionMessage = new Label
+                {
+                    AutoSize = true,
+                    ForeColor = Color.White,
+                    BackColor = Color.Black,
+                    Location = new Point(50, 100),
+                };
+                Controls.Add(interactionMessage);
+            }
 
+            interactionMessage.Text = $"Interacciones disponibles: {interactions.Count}";
+            interactionMessage.Show();
+
+            currentInteraction = interactions.FirstOrDefault();
+            dialogueIndex = 0;
+
+            CreateInteractionButtons();
+        }
+
+        private void CreateInteractionButtons()
+        {
             Button continueButton = new Button
             {
                 Text = "Continuar",
-                Location = new Point(100, 200)
+                Location = new Point(50, 200),
+                AutoSize = true
             };
-            continueButton.Click += ContinueButton_Click;
+            continueButton.Click += ContinuarButton_Click;
 
             Button cancelButton = new Button
             {
                 Text = "Cancelar",
-                Location = new Point(200, 200)
+                Location = new Point(150, 200),
+                AutoSize = true
             };
-            cancelButton.Click += CancelButton_Click;
+            cancelButton.Click += CancelarButton_Click;
 
-            // Agregar controles al formulario
-            this.Controls.Add(dialogueLabel);
-            this.Controls.Add(continueButton);
-            this.Controls.Add(cancelButton);
+            Controls.Add(continueButton);
+            Controls.Add(cancelButton);
         }
 
-        /// <summary>
-        /// Avanza al siguiente diálogo al presionar "Continuar".
-        /// </summary>
-        private void ContinueButton_Click(object sender, EventArgs e)
+        private void ContinuarButton_Click(object? sender, EventArgs e)
         {
-            if (loadedScript != null && currentDialogueIndex < loadedScript.Dialogues.Length - 1)
+            if (currentInteraction != null && dialogueIndex < currentInteraction.Dialogues.Count)
             {
-                currentDialogueIndex++;
-                ShowInteraction(loadedScript.Dialogues[currentDialogueIndex]);
+                interactionMessage.Text = currentInteraction.Dialogues[dialogueIndex];
+                dialogueIndex++;
             }
             else
             {
-                MessageBox.Show("Interacción terminada.");
-                Application.Exit(); // Cierra el overlay.
+                interactionMessage.Text = "Interacción finalizada.";
+                ClearInteractionUI();
             }
         }
 
-        /// <summary>
-        /// Cancela la interacción al presionar "Cancelar".
-        /// </summary>
-        private void CancelButton_Click(object sender, EventArgs e)
+        private void CancelarButton_Click(object? sender, EventArgs e)
         {
-            this.Controls.Clear(); // Limpia la interfaz
-            MessageBox.Show("Interacción cancelada.");
+            ClearInteractionUI();
+        }
+
+        private void ClearInteractionUI()
+        {
+            Controls.Clear();
+            interactionMessage = null;
+            currentInteraction = null;
+
+            // Reagregar el botón de verificar ubicación
+            CreateCheckLocationButton();
         }
     }
 }

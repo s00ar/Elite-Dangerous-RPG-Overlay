@@ -1,11 +1,33 @@
 {
-  "NPC": "John the Explorer",
-  "Latitude": 18.796764,
-  "Longitude": 164.046234,
-  "BodyName": "LHS 2459 A 1",
-  "Dialogues": [
-    "¡Hola, explorador! ¿Listo para una nueva aventura?",
-    "Busca a los cristales en las coordenadas 20,30.",
-    "Gracias por ayudarme. ¡Buena suerte!"
+  "Planets": [
+    {
+      "BodyName": "LHS 2459 A 1",
+      "Interactions": [
+        {
+          "NPC": "NPC 1",
+          "Latitude": 18.796764,
+          "Longitude": 164.046234,
+          "Dialogues": [
+            "Bienvenido al planeta.",
+            "Tenemos una misión para ti.",
+            "Dirígete a Prospector's Rest en LHS 130 A1 y habla con Jasen Stephens."
+          ]
+        },
+        {
+          "NPC": "NPC 2",
+          "Latitude": 43.5,
+          "Longitude": -70.2,
+          "Dialogues": [
+            "Hola, explorador.",
+            "Necesitamos tu ayuda para una tarea urgente.",
+            "Visita la estación orbital para más detalles."
+          ]
+        }
+      ]
+    },
+    {
+      "BodyName": "Otro Planeta",
+      "Interactions": []
+    }
   ]
 }
